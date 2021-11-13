@@ -144,8 +144,9 @@ class ReportAnalyzer
 
     // Load the report file
     private function loadReportFile() {
+        $reportFileDir = $_SERVER['SYMFONY_DEFAULT_ROUTE_URL'].'uploads/reports/';
         try {
-            return file($_SERVER['DOCUMENT_ROOT'].$this->reportFileName);
+            return file($reportFileDir.$this->reportFileName);
         } catch(\Exception $e) {
             return null;
         }
