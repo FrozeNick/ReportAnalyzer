@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px solid #dddddd;
+                text-align: left;
+                padding: 8px;
+            }
+
+            tr:nth-child(even) {
+                background-color: #dddddd;
+            }
+        </style>
+    </head>
+    <body>
+        {% if report is defined %}
+        <h1>Report Results for {{ report }}:</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer Id</th>
+                    <th>Number of calls within same continent</th>
+                    <th>Total Duration of calls within same continent</th>
+                    <th>Total number of all calls</th>
+                    <th>Total duration of all calls</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in report_data %}
+                    <tr>
+                        <td>{{ row.customer_id }}</td>
+                        <td>{{ row.call_stats.total_same_continent }}</td>
+                        <td>{{ row.call_stats.total_duration_same_continent }} Seconds</td>
+                        <td>{{ row.call_stats.total }}</td>
+                        <td>{{ row.call_stats.total_duration }} Seconds</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <h1>Report not found.</h1>
+        <a href="/">Go back</a>
+        {% endif %}
+    </body>
+</html>
