@@ -7,7 +7,6 @@ use GuzzleHttp\Promise\Utils;
 class IPStack
 {
     CONST API_URL = 'http://api.ipstack.com';
-    CONST API_KEY = 'ed09e98ccc0c3f163c4d575a764f3629';
     
     // Retrieve data about given array of ips
     public static function lookup(array $ips) {
@@ -19,20 +18,35 @@ class IPStack
         $promises = [];
 
         foreach($ips as $ip) {
-            $promises[] = $client->requestAsync('GET', '/'.$ip.'?access_key='.self::API_KEY);
+            $promises[] = $client->requestAsync('GET', '/'.$ip.'?access_key='.self::getApiKey());
         }
 
         try {
             $responses = Utils::unwrap($promises);
-            $res = collect();
-            foreach($responses as $r) {
-                $parsedData = json_decode($r->getBody()->getContents(), true);
-                $res->push($parsedData);
-            }
-
-            return $res->keyBy('ip');
         } catch(\Exception $e) {
             return false;
         }
+
+        $res = collect();
+        foreach($responses as $r) {
+            $parsedData = json_decode($r->getBody()->getContents(), true);
+
+            if(!$parsedData['success']) {
+                throw new \Exception('Error occured when using IPStack API: "'.$parsedData['error']['info'].'"');
+            }
+            $res->push($parsedData);
+        }
+
+        return $res->keyBy('ip');
+    }
+
+    private static function getApiKey() {
+        if(isset($_SERVER['IPSTACK_API_KEY'])) {
+            if(strlen($_SERVER['IPSTACK_API_KEY']) > 0) {
+                return $_SERVER['IPSTACK_API_KEY'];
+            }
+        }
+
+        throw new \Exception('Please provide a working API key for IPStack in the .env file named "IPSTACK_API_KEY".');
     }
 }
